@@ -22,7 +22,7 @@
             @endif
 
             @auth
-                @if(Auth::user()->role === 'admin')
+                @if(Auth::user()->role === 'admin' || Auth::user()->role === 'formateur')
                     <x-nav-link :href="url('/utilisateurs')" :active="request()->is('utilisateurs')">
                         {{ __('Utilisateurs') }}
                     </x-nav-link>

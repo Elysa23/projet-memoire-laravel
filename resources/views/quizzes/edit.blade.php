@@ -12,6 +12,10 @@
                 <input type="text" value="{{ $quiz->course->title ?? 'Cours inconnu' }}" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white" disabled>
             </div>
             <div class="mb-4">
+                <label for="title" class="block text-gray-700">Titre du quiz</label>
+                <input type="text" name="title" id="title" value="{{ old('title', $quiz->title ?? '') }}" class="form-input mt-1 block w-full" required>
+            </div>
+            <div class="mb-4">
                 <label for="content" class="block mb-1 dark:text-white">Contenu du quiz</label>
                 <textarea name="content" id="content" rows="10" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white" required>{{ old('content', $quiz->content) }}</textarea>
                 <small class="text-gray-500">

@@ -1,113 +1,88 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
+
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
 use App\Http\Middleware\IsAdmin;
+use App\Models\User;
+use Illuminate\Http\Request;
 use App\Http\Controllers\CourseController;
 use App\Http\Controllers\CoursePageController;
+use App\Http\Controllers\QuizController;
 use App\Http\Controllers\AdminDashboardController;
 use App\Http\Controllers\StudentDashboardController;
+use Illuminate\Support\Facades\Hash;
 
 
+//PAGE D'ACCUEIL
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+
+// AUTHENTIFICATION
+
+require __DIR__.'/auth.php';
+
+
+// PROFIL
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::put('/profile/password', [ProfileController::class, 'updatePassword'])->name('profile.updatePassword');
+    Route::post('/profile/photo', [ProfileController::class, 'updatePhoto'])->name('profile.updatePhoto'); // POST pour l'upload de fichier
+});                        
+
+
+
+// UTILISATEURS
+
+Route::middleware(['auth', 'is_formateur'])->group(function () {
+    Route::get('/utilisateurs', [App\Http\Controllers\UserController::class, 'index'])->name('users.index');
+    Route::post('/utilisateurs', [App\Http\Controllers\UserController::class, 'store'])->name('users.store');
+    Route::get('/utilisateurs/{user}/edit', [App\Http\Controllers\UserController::class, 'edit'])->name('users.edit');
+    Route::put('/utilisateurs/{user}', [App\Http\Controllers\UserController::class, 'update'])->name('users.update');
+    Route::delete('/utilisateurs/{user}', [App\Http\Controllers\UserController::class, 'destroy'])->name('users.destroy');
 });
 
-require __DIR__.'/auth.php';
-
-
-use App\Models\User;
-use Illuminate\Http\Request;
-
-
-
-// Création de la route POST pour enregistrer l'utilisateur 28/04
-
-use Illuminate\Support\Facades\Hash;
-
-Route::post('/utilisateurs', function (Request $request) {
-    // Valider les données
-    $request->validate([
-        'name' => 'required',
-        'email' => 'required|email|unique:users,email',
-        'password' => 'required|min:6',
-        'role' => 'required|in:apprenant,formateur,admin',
-    ]);
-
-    // Créer l'utilisateur
-    User::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => $request->role,
-    ]);
-
-    return redirect('/utilisateurs')->with('success', 'Utilisateur ajouté avec succès.');
-})->middleware(['auth', IsAdmin::class]);
-
-
-// 29/04 : Route pour l'accès refusé de la page ajouter-utilisateur 
-
+// Route pour l'accès refusé
 Route::get('/access-denied', function () {
     return view('access-denied');
 })->name('access.denied');
 
-// 29/04 : Route pour la liste des utilisateurs
+    
+// COURS
 
-Route::get('/utilisateurs', [App\Http\Controllers\UserController::class, 'index'])
-    ->middleware('is_admin');
-
-
-// 29/04 : Route pour formulaire d'édition de la liste des utilisateurs
-
-// Afficher le formulaire d’édition
-Route::get('/utilisateurs/{user}/edit', [App\Http\Controllers\UserController::class, 'edit'])
-    ->middleware('is_admin')
-    ->name('users.edit');
-
-// Enregistrer la modification
-Route::put('/utilisateurs/{user}', [App\Http\Controllers\UserController::class, 'update'])
-    ->middleware('is_admin')
-    ->name('users.update');
-
-// 30/04 : Suppression d'un utilisateur
-Route::delete('/utilisateurs/{user}', [App\Http\Controllers\UserController::class, 'destroy'])
-    ->middleware('is_admin')
-    ->name('users.destroy');
-
-// Route pour supprimer la miniature d'un cours
+    // Route pour supprimer la miniature d'un cours
 Route::delete('courses/{course}/remove-thumbnail', [App\Http\Controllers\CourseController::class, 'removeThumbnail'])->name('courses.remove-thumbnail');
 
-// 01/05 : Routes pour les cours
+    // 01/05 : Routes pour les cours
 
 Route::resource('courses', App\Http\Controllers\CourseController::class)->middleware('auth');
 
-// 02/05 : Suppression image dans thumbnail
+    // 02/05 : Suppression image dans thumbnail
 
 Route::delete('courses/{course}/remove-thumbnail', [CourseController::class, 'removeThumbnail'])->name('courses.remove-thumbnail');
 
-// Affichage cours côté apprenant
+    // Affichage cours côté apprenant
 
 Route::get('apprenant/cours', [App\Http\Controllers\CourseController::class, 'publishedForStudents'])
     ->name('courses.published');
 
-// 05/05 Affichage pages des cours 
+    // 05/05 Affichage pages des cours 
 Route::get('apprenant/cours/{course}/{page?}', [App\Http\Controllers\CourseController::class, 'showPage'])
     ->name('courses.page');
 
 
-// 05/05 Gestion des pages des cours
+    // 05/05 Gestion des pages des cours
 
 Route::get('courses/{course}/pages', [App\Http\Controllers\CoursePageController::class, 'manage'])->name('courses.pages.manage');
 Route::get('courses/{course}/pages/create', [App\Http\Controllers\CoursePageController::class, 'create'])->name('courses.pages.create');
@@ -118,44 +93,48 @@ Route::delete('courses/{course}/pages/{page}', [App\Http\Controllers\CoursePageC
 Route::get('apprenant/cours/{course}/{page?}', [App\Http\Controllers\CoursePageController::class, 'showPage'])
     ->name('courses.page');
 
-// 05/05 Cours publiés
+    // 05/05 Cours publiés
 Route::get('apprenant/cours', [App\Http\Controllers\CourseController::class, 'published'])->name('courses.published');
 
-use App\Http\Controllers\QuizController;
 
-// 06/05 Liste des quiz, création, affichage, édition, suppression
+// QUIZZ
+
+    // 06/05 Liste des quiz, création, affichage, édition, suppression
 Route::resource('quizzes', App\Http\Controllers\QuizController::class);
 
-// Route spécifique pour la génération via IA (AJAX ou POST)
+    // Route spécifique pour la génération via IA (AJAX ou POST)
 Route::post('quizzes/generate', [App\Http\Controllers\QuizController::class, 'generate'])->name('quizzes.generate');
 
-// Route API quizz
+    // Route API quizz
 
 Route::post('/quiz/generate', [QuizController::class, 'generate'])->name('quiz.generate');
 
-// 08/05 : Affichage du quiz à l’apprenant
+    // 08/05 : Affichage du quiz à l'apprenant
 Route::get('quizzes/{quiz}/answer', [QuizController::class, 'answer'])->name('quizzes.answer');
 
-// Soumission des réponses
+    // Soumission des réponses
 Route::post('quizzes/{quiz}/submit', [QuizController::class, 'submitAnswers'])->name('quizzes.submit');
 
-// 09/05 Affichage quizz côté admin et formateur
+    // 09/05 Affichage quizz côté admin et formateur
 Route::get('quizzes/{quiz}', [QuizController::class, 'show'])->name('quizzes.show');
 
-// 12/05 Affichage dashboard admin
+  
+// DASHBOARD
+
+    // 12/05 Affichage dashboard admin
 
 
 Route::get('/admin/courses-stats', [AdminDashboardController::class, 'coursesStats'])->name('admin.courses.stats');
 Route::get('/admin/dashboard', [AdminDashboardController::class, 'dashboard'])->name('dashboard');
 
-// 13/05 dashboard quizz
+    // 13/05 dashboard quizz
 
 Route::get('/admin/quiz-stats', [AdminDashboardController::class, 'quizStats'])->name('admin.quiz.stats');
 Route::get('/student/quiz-stats', [StudentDashboardController::class, 'quizStats'])
     ->middleware(['auth', 'role:apprenant']) // si tu as un middleware de rôle
     ->name('student.quiz.stats');
 
-// 13/05 dashboard apprenant
+    // 13/05 dashboard apprenant
 
 Route::get('/student/dashboard', [StudentDashboardController::class, 'dashboard'])
     ->middleware(['auth', 'role:apprenant'])

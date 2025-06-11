@@ -13,6 +13,7 @@ class Quiz extends Model
         'course_id',
         'user_id',
         'content',
+        'title',
     ];
 
     // Un quiz appartient à un cours

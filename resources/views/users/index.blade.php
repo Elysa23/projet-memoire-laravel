@@ -99,15 +99,20 @@
     </div>
 </div>
 
-<!-- Le reste de ta vue (formulaire de recherche, tableau, etc.) reste inchangé -->
 
-    <h1 class="text-2xl font-bold mb-4 flex justify-center dark:text-white">Liste des utilisateurs</h1>
+    <h1 class="text-2xl font-bold mb-4 flex justify-center dark:text-white">
+        @if(Auth::user()->role === 'formateur')
+            Liste des apprenants
+        @else
+            Liste des utilisateurs
+        @endif
+    </h1>
 
     <div class="flex justify-end mb-4">
     <button
         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow"
         onclick="document.getElementById('add-user-modal').style.display='flex'">
-        Ajouter un utilisateur
+        + Ajouter un utilisateur
     </button>
 </div>
 
@@ -135,6 +140,7 @@
                 <label for="password" class="block font-medium">Mot de passe</label>
                 <input type="password" name="password" id="password" class="w-full border rounded px-3 py-2" required>
             </div>
+            @if(Auth::user()->role === 'admin')
             <div>
                 <label for="role" class="block font-medium">Rôle</label>
                 <select name="role" id="role" class="w-full border rounded px-3 py-2" required>
@@ -143,6 +149,9 @@
                     <option value="apprenant">Apprenant</option>
                 </select>
             </div>
+            @else
+            <input type="hidden" name="role" value="apprenant">
+            @endif
             <div class="flex justify-end">
                 <button type="submit" class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
                     Ajouter
@@ -168,14 +177,18 @@
                 <label class="block mb-1">Email :</label>
                 <input type="email" name="email" id="edit-user-email" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white" required>
             </div>
+            @if(Auth::user()->role === 'admin')
             <div class="mb-4">
                 <label class="block mb-1">Rôle :</label>
                 <select name="role" id="edit-user-role" class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white" required>
                     <option value="admin">Admin</option>
-                    <option value="professeur">Professeur</option>
+                    <option value="formateur">Formateur</option>
                     <option value="apprenant">Apprenant</option>
                 </select>
             </div>
+            @else
+            <input type="hidden" name="role" value="apprenant">
+            @endif
             <div class="flex justify-end">
                 <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Enregistrer</button>
             </div>
@@ -188,12 +201,14 @@
         <form id="search-form" method="GET" action="{{ url('/utilisateurs') }}" class="mb-4 flex flex-wrap gap-2 items-center">
     <input id="search-input" type="text" name="search" placeholder="Nom ou email..." value="{{ request('search') }}"
         class="border rounded px-3 py-2 dark:bg-gray-600" />
+    @if(Auth::user()->role === 'admin')
     <select name="role" class="border rounded px-7 py-2 dark:bg-gray-600">
         <option value=""> Rôles </option>
         <option value="admin" @if(request('role')=='admin') selected @endif>Admin</option>
         <option value="formateur" @if(request('role')=='formateur') selected @endif>Formateur</option>
         <option value="apprenant" @if(request('role')=='apprenant') selected @endif>Apprenant</option>
     </select>
+    @endif
     <button type="submit" class="bg-blue-400 text-white px-4 py-2 rounded">Rechercher</button>
 </form>
 
@@ -219,7 +234,9 @@
             <tr>
                 <th class="px-4 py-2">Nom</th>
                 <th class="px-4 py-2">Email</th>
+                @if(Auth::user()->role === 'admin')
                 <th class="px-4 py-2">Rôle</th>
+                @endif
                 <th class="px-4 py-2">Actions</th>
             </tr>
         </thead>
@@ -228,7 +245,9 @@
                 <tr>
                     <td class="border px-4 py-2">{{ $user->name }}</td>
                     <td class="border px-4 py-2">{{ $user->email }}</td>
+                    @if(Auth::user()->role === 'admin')
                     <td class="border px-4 py-2">{{ $user->role }}</td>
+                    @endif
                     <td class="border px-4 py-2">
                     <button onclick="openEditUserModal({ 
     id: '{{ $user->id }}', 
@@ -288,7 +307,7 @@ function openEditUserModal(user) {
     document.getElementById('edit-user-name').value = user.name;
     document.getElementById('edit-user-email').value = user.email;
     document.getElementById('edit-user-role').value = user.role;
-    document.getElementById('edit-user-form').action = '/utilisateurs/' + user.id;
+    document.getElementById('edit-user-form').action = "{{ route('users.update', ':id') }}".replace(':id', user.id);
 }
 function closeEditUserModal() {
     document.getElementById('edit-user-modal').style.display = 'none';

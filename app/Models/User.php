@@ -6,6 +6,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -22,6 +24,10 @@ class User extends Authenticatable
         'email',
         'password',
         'role' ,
+        'first_name',
+        'gender',
+        'profile_photo_path',
+        'project_id',
     ];
 
     /**
@@ -51,5 +57,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\Course::class, 'user_id');
     }
+
+    // Accessor pour l'URL de la photo de profil
+    public function getProfilePhotoUrlAttribute()
+    {
+        return $this->profile_photo_path
+                    ? Storage::url($this->profile_photo_path)
+                    : asset('images/default-avatar.jpg'); // Chemin vers une image par défaut
+    }
+
 
 }

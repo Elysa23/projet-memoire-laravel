@@ -37,11 +37,12 @@
     </script>
 @endif
 
+<div class="flex justify-end mb-4 mr-4">
 <a href="{{ route('courses.create') }}"
    class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded mb-4 inline-block">
     + Nouveau cours
 </a>
-
+</div>
 
 <!-- Formulaire de recherche -->
 

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -26,13 +28,14 @@ class UserController extends Controller
             $query->where('role', $request->input('role'));
         }
 
+        // Si l'utilisateur est un formateur, ne montrer que les apprenants
+        if (Auth::user()->role === 'formateur') {
+            $query->where('role', 'apprenant');
+        }
+
         $users = $query->paginate($request->input('per_page', 10));
 
-         // Ajout de logs pour déboguer
-        \Log::info('Comptage des utilisateurs :');
-    
-        // Stats avec logs
-
+        // Calculer les statistiques
         $stats = [
             'admin' => User::where('role', 'admin')->count(),
             'formateur' => User::where('role', 'formateur')->count(),
@@ -46,10 +49,9 @@ class UserController extends Controller
         // Log des résultats
         \Log::info('Stats calculées :', $stats);
 
-        // Vérifions tous les formateurs
+        // Vérifier tous les formateurs
         $tousFormateurs = User::where('role', 'formateur')->get();
         \Log::info('Liste des formateurs :', $tousFormateurs->toArray());
-
 
         // Calcul de l'évolution
         $stats['evolution'] = [
@@ -65,8 +67,33 @@ class UserController extends Controller
             ? (($stats['evolution']['ce_mois'] - $stats['evolution']['mois_dernier']) / $stats['evolution']['mois_dernier']) * 100 
             : 0;
 
-        // Retourner à la fois les users et les stats
         return view('users.index', compact('users', 'stats'));
+    }
+
+    public function store(Request $request)
+    {
+        // Valider les données
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8',
+            'role' => 'required|in:apprenant,formateur,admin',
+        ]);
+
+        // Si l'utilisateur est un formateur, il ne peut créer que des apprenants
+        if (Auth::user()->role === 'formateur' && $request->role !== 'apprenant') {
+            return redirect()->back()->with('error', 'Les formateurs ne peuvent créer que des apprenants.');
+        }
+
+        // Créer l'utilisateur
+        User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+        ]);
+
+        return redirect('/utilisateurs')->with('success', 'Utilisateur ajouté avec succès.');
     }
 
     // Edition du formulaire de modification des utilisateurs
@@ -80,21 +107,27 @@ class UserController extends Controller
 
     public function update(Request $request, $id)
     {
-        // On récupère l'utilisateur à modifier
         $user = User::findOrFail($id);
 
-        // On valide les données du formulaire
+        // Si l'utilisateur est un formateur, il ne peut modifier que des apprenants
+        if (Auth::user()->role === 'formateur' && $user->role !== 'apprenant') {
+            return redirect()->back()->with('error', 'Les formateurs ne peuvent modifier que les apprenants.');
+        }
+
         $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$user->id,
-            'role' => 'required|in:admin,professeur,apprenant',
+            'role' => 'required|in:apprenant,formateur,admin',
         ]);
 
-        // On met à jour l'utilisateur
+        // Si l'utilisateur est un formateur, il ne peut pas changer le rôle
+        if (Auth::user()->role === 'formateur') {
+            $request->merge(['role' => 'apprenant']);
+        }
+
         $user->update($request->only(['name', 'email', 'role']));
 
-        // Retourne la vue d'édition avec un message de succès
-        return redirect()->route('users.edit', $user->id)
+        return redirect()->route('users.index', $user->id)
             ->with('success', 'Utilisateur modifié avec succès !')
             ->with('redirect', true);
     }
@@ -104,7 +137,11 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        // (Optionnel) Empêcher la suppression de soi-même
+        // Si l'utilisateur est un formateur, il ne peut supprimer que des apprenants
+        if (Auth::user()->role === 'formateur' && $user->role !== 'apprenant') {
+            return redirect()->back()->with('error', 'Les formateurs ne peuvent supprimer que les apprenants.');
+        }
+
         if (auth()->id() == $user->id) {
             return redirect('/utilisateurs')->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
         }

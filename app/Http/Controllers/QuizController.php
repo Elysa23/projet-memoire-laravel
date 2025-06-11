@@ -32,13 +32,15 @@ class QuizController extends Controller
 {
     $request->validate([
         'course_id' => 'required|exists:courses,id',
-        'content' => 'required'
+        'content' => 'required',
+        'title' => 'required|string|max:255',
     ]);
 
     $quiz = Quiz::create([
         'course_id' => $request->course_id,
         'user_id' => Auth::id(),
         'content' => $request->content,
+        'title' => $request->title,
     ]);
 
     // Si la requête attend du JSON (AJAX)
@@ -65,17 +67,17 @@ class QuizController extends Controller
 
     // Génère un quiz via l’API IA (exemple avec Mistral)
     public function generate(Request $request)
-    {
-        $request->validate([
-            'course_id' => 'required|exists:courses,id',
-        ]);
+{
+    $request->validate([
+        'course_id' => 'required|exists:courses,id',
+    ]);
 
-        $course = Course::findOrFail($request->course_id);
+    $course = Course::findOrFail($request->course_id);
 
-        // Appel API Mistral 
+    try {
         $response = Http::withHeaders([
             'Authorization' => 'Bearer ' . env('MISTRAL_API_KEY'),
-            'HTTP-Referer' => 'http://localhost', // ou ton nom de domaine
+            'HTTP-Referer' => 'http://localhost',
             'X-Title' => 'LaravelQuizGenerator',
         ])->post('https://openrouter.ai/api/v1/chat/completions', [
             'model' => 'mistralai/mistral-7b-instruct',
@@ -83,25 +85,33 @@ class QuizController extends Controller
                 [
                     'role' => 'user',
                     'content' => "Génère un quiz varié (QCM, vrai/faux, ouvert) de difficulté raisonnable sur ce contenu, en utilisant la syntaxe Markdown. 
-                - Utilise des titres (#) pour chaque question.
-                - Mets les questions en gras (**).
-                - Utilise des listes à puces pour les propositions de réponses.
-                - Indique la bonne réponse en la mettant en gras ou avec [x] pour les QCM.
-                - Ajoute une ligne de séparation (---) entre chaque question.
-                -Utilise toujours la syntaxe - [ ] pour chaque proposition, et - [x] pour la bonne réponse.  
+                    - Utilise des titres (#) pour chaque question.
+                    - Mets les questions en gras (**).
+                    - Utilise des listes à puces pour les propositions de réponses.
+                    - Indique la bonne réponse en la mettant en gras ou avec [x] pour les QCM.
+                    - Ajoute une ligne de séparation (---) entre chaque question.
+                    -Utilise toujours la syntaxe - [ ] pour chaque proposition, et - [x] pour la bonne réponse.  
 
-                Contenu du cours : " . $course->content,    
+                    Contenu du cours : " . $course->content,    
                 ],
             ],
         ]);
         
-
-
         $quizText = $response->json()['choices'][0]['message']['content'] ?? 'Erreur de génération';
-
-        // Parser le texte en JSON si besoin, ou le retourner tel quel
-        return response()->json(['quiz' => $quizText]);
+        
+        // Générer un titre par défaut basé sur le cours
+        $defaultTitle = "Quiz sur " . $course->title;
+        
+        return response()->json([
+            'quiz' => $quizText,
+            'title' => $defaultTitle
+        ]);
+        
+    } catch (\Exception $e) {
+        \Log::error('Erreur lors de la génération du quiz', ['error' => $e->getMessage()]);
+        return response()->json(['error' => 'Erreur lors de la génération du quiz'], 500);
     }
+}
 
     public function edit(Quiz $quiz)
 {
@@ -112,7 +122,8 @@ class QuizController extends Controller
     public function update(Request $request, Quiz $quiz)
 {
     $request->validate([
-        'content' => 'required'
+        'content' => 'required',
+        'title' => 'required|string|max:255',
     ]);
 
     $quiz->update([

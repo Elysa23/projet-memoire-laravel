@@ -6,6 +6,7 @@
         <h1 class="text-2xl font-bold mb-4 dark:text-white">
             Quiz du cours : {{ $quiz->course->title ?? 'Cours inconnu' }}
         </h1>
+        <<td class="text-gray-700 dark:text-white">{{ $quiz->title }}</td>
         <<div class="prose dark:prose-invert dark:text-white max-w-none mb-6">
         {!! $quizContentHtml !!}
         </div>
