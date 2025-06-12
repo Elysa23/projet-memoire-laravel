@@ -14,7 +14,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     @forelse($quizzes as $quiz)
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col">
+        <div class="bg-blue-50 dark:bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col border border-blue-100 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
             @if(auth()->user()->role === 'apprenant')
                 @php
                     $userAnswer = $quiz->answers()->where('user_id', auth()->id())->latest()->first();
@@ -39,18 +39,13 @@
             @endif
 
             <div class="flex-grow">
-                <h3 class="text-lg font-bold mb-2 dark:text-white">
-                     {{ $quiz->course->title ?? 'Cours inconnu' }}
-                </h3>
-                {{-- J'ai déplacé les classes text-gray et dark:text ici pour être sûr qu'elles s'appliquent --}}
-                <div class="text-gray-700 dark:text-white mb-4">{{ $quiz->title }}</div> {{-- J'ai remplacé <td> par <div> --}}
-                <p class="text-gray-700 dark:text-gray-200 mb-4"> {{-- Utilisation de mb-4 pour le margin-bottom --}}
-                    {!! nl2br(e(Str::limit($quiz->content, 200))) !!}
-                </p>
-                <div class="flex justify-between items-center mb-4"> {{-- Ajout de mb-4 --}}
-                    <span class="text-sm text-gray-500 dark:text-gray-400">
-                        Créé par : {{ $quiz->user->name ?? 'Inconnu' }}
-                    </span>
+                <div class="text-center mb-4">
+                    <h3 class="text-lg font-bold text-blue-900 dark:text-white">
+                        {{ $quiz->course->title ?? 'Cours inconnu' }} : {{ $quiz->title }}
+                    </h3>
+                </div>
+                <div class="flex justify-center items-center text-sm text-gray-600 dark:text-gray-400">
+                    <span>Créé par : {{ $quiz->user->name ?? 'Inconnu' }}</span>
                 </div>
             </div>
 
@@ -58,11 +53,11 @@
             @if(auth()->user()->role === 'apprenant')
                 <div class="flex justify-center mt-4">
                     @if($status === 'not_started')
-                        <a href="{{ route('quizzes.answer', $quiz) }}" class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded">
+                        <a href="{{ route('quizzes.answer', $quiz) }}" class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors duration-300">
                             Passer le quiz
                         </a>
                     @else
-                        <a href="{{ route('quizzes.answer', $quiz) }}" class="bg-yellow-600 hover:bg-yellow-800 text-white px-4 py-2 rounded">
+                        <a href="{{ route('quizzes.answer', $quiz) }}" class="bg-yellow-600 hover:bg-yellow-800 text-white px-4 py-2 rounded-lg transition-colors duration-300">
                             Repasser le quiz
                         </a>
                     @endif
@@ -70,9 +65,9 @@
             {{-- Condition pour admin et formateur --}}
             @else
                 <div class="flex justify-between items-center mt-4"> {{-- Conteneur flex pour aligner de part et d'autre et margin-top --}}
-                    <a href="{{ route('quizzes.show', $quiz) }}" class="text-blue-600 hover:underline">Voir</a>
+                    <a href="{{ route('quizzes.show', $quiz) }}" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-300">Voir</a>
                     @if(Auth::id() === $quiz->user_id || Auth::user()->role==='admin')
-                        <a href="{{ route('quizzes.edit', $quiz) }}" class="text-yellow-600 hover:underline ml-2">Modifier</a>
+                        <a href="{{ route('quizzes.edit', $quiz) }}" class="text-yellow-600 hover:text-yellow-800 dark:text-yellow-400 dark:hover:text-yellow-300 transition-colors duration-300 ml-2">Modifier</a>
                     @endif
                 </div>
             @endif

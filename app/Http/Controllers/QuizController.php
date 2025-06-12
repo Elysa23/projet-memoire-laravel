@@ -155,15 +155,29 @@ public function submitAnswers(Request $request, Quiz $quiz)
         'time_spent' => 'nullable|integer'
     ]);
 
-    $finalScore = 0;
-    $totalQuestions = count($request->answers);
+    $questions = $this->parseQuizMarkdown($quiz->content);
+    $correctAnswers = 0;
+    $totalQuestions = count($questions);
 
-    foreach ($request->answers as $questionId => $answer) {
-        $correctAnswer = $this->parseQuizMarkdown($quiz->content)[$questionId]['correct'];
-        if ($correctAnswer === $answer) {
-            $finalScore++;
+    foreach ($request->answers as $questionId => $userAnswer) {
+        if (isset($questions[$questionId])) {
+            $correctAnswer = $questions[$questionId]['correct'];
+            // Pour les QCM, on compare l'index de la réponse
+            if ($questions[$questionId]['type'] === 'qcm') {
+                if ($correctAnswer === (int)$userAnswer) {
+                    $correctAnswers++;
+                }
+            } else {
+                // Pour les questions ouvertes, on compare directement les réponses
+                if (strtolower(trim($correctAnswer)) === strtolower(trim($userAnswer))) {
+                    $correctAnswers++;
+                }
+            }
         }
     }
+
+    // Calculer le score en pourcentage
+    $finalScore = $totalQuestions > 0 ? round(($correctAnswers / $totalQuestions) * 100, 2) : 0;
 
     // Sauvegarder la réponse
     $answer = QuizAnswer::create([
