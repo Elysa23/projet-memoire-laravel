@@ -1,4 +1,3 @@
-
 @extends('layouts.app')
 
 @section('content')
@@ -6,36 +5,67 @@
     <h1 class="text-2xl font-bold mb-6 dark:text-white">Liste des quiz</h1>
     @if(auth()->user()->role !== 'apprenant')
     <div class="flex justify-end mb-4 mr-4">
-    <button onclick="openQuizModal()" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded mb-4">
-        + Créer un quiz
-    </button>
-</div>
+        <button onclick="openQuizModal()" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded mb-4">
+            + Créer un quiz
+        </button>
+    </div>
     @endif
     <!--Affichage quizz dans l'onglet quizz-->
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     @forelse($quizzes as $quiz)
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-            <h3 class="text-lg font-bold mb-2 dark:text-white">
-                 {{ $quiz->course->title ?? 'Cours inconnu' }}
-            </h3>
-            {{-- J'ai déplacé les classes text-gray et dark:text ici pour être sûr qu'elles s'appliquent --}}
-            <div class="text-gray-700 dark:text-white mb-4">{{ $quiz->title }}</div> {{-- J'ai remplacé <td> par <div> --}}
-            <p class="text-gray-700 dark:text-gray-200 mb-4"> {{-- Utilisation de mb-4 pour le margin-bottom --}}
-                {!! nl2br(e(Str::limit($quiz->content, 200))) !!}
-            </p>
-            <div class="flex justify-between items-center mb-4"> {{-- Ajout de mb-4 --}}
-                <span class="text-sm text-gray-500 dark:text-gray-400">
-                    Créé par : {{ $quiz->user->name ?? 'Inconnu' }}
-                </span>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col">
+            @if(auth()->user()->role === 'apprenant')
+                @php
+                    $userAnswer = $quiz->answers()->where('user_id', auth()->id())->latest()->first();
+                    $status = $userAnswer ? ($userAnswer->score >= $quiz->passing_score ? 'success' : 'failed') : 'not_started';
+                @endphp
+                
+                <div class="text-center mb-4">
+                    @if($status === 'not_started')
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                            Non commencé
+                        </span>
+                    @elseif($status === 'success')
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                            Réussi ({{ $userAnswer->score }}%)
+                        </span>
+                    @else
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                            Échoué ({{ $userAnswer->score }}%)
+                        </span>
+                    @endif
+                </div>
+            @endif
+
+            <div class="flex-grow">
+                <h3 class="text-lg font-bold mb-2 dark:text-white">
+                     {{ $quiz->course->title ?? 'Cours inconnu' }}
+                </h3>
+                {{-- J'ai déplacé les classes text-gray et dark:text ici pour être sûr qu'elles s'appliquent --}}
+                <div class="text-gray-700 dark:text-white mb-4">{{ $quiz->title }}</div> {{-- J'ai remplacé <td> par <div> --}}
+                <p class="text-gray-700 dark:text-gray-200 mb-4"> {{-- Utilisation de mb-4 pour le margin-bottom --}}
+                    {!! nl2br(e(Str::limit($quiz->content, 200))) !!}
+                </p>
+                <div class="flex justify-between items-center mb-4"> {{-- Ajout de mb-4 --}}
+                    <span class="text-sm text-gray-500 dark:text-gray-400">
+                        Créé par : {{ $quiz->user->name ?? 'Inconnu' }}
+                    </span>
+                </div>
             </div>
 
             {{-- Condition pour l'apprenant --}}
             @if(auth()->user()->role === 'apprenant')
-                <div class="flex justify-center mt-4"> {{-- Conteneur flex pour centrer le bouton et margin-top --}}
-                    <a href="{{ route('quizzes.answer', $quiz) }}" class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded">
-                        Passer le quiz
-                    </a>
+                <div class="flex justify-center mt-4">
+                    @if($status === 'not_started')
+                        <a href="{{ route('quizzes.answer', $quiz) }}" class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded">
+                            Passer le quiz
+                        </a>
+                    @else
+                        <a href="{{ route('quizzes.answer', $quiz) }}" class="bg-yellow-600 hover:bg-yellow-800 text-white px-4 py-2 rounded">
+                            Repasser le quiz
+                        </a>
+                    @endif
                 </div>
             {{-- Condition pour admin et formateur --}}
             @else

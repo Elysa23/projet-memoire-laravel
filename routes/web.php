@@ -118,6 +118,9 @@ Route::post('quizzes/{quiz}/submit', [QuizController::class, 'submitAnswers'])->
     // 09/05 Affichage quizz côté admin et formateur
 Route::get('quizzes/{quiz}', [QuizController::class, 'show'])->name('quizzes.show');
 
+    // 10/05 Affichage résultats du quiz
+Route::get('/quizzes/{quiz}/result', [QuizController::class, 'showResult'])->name('quizzes.result');
+
   
 // DASHBOARD
 

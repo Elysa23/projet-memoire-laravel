@@ -58,6 +58,11 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\Course::class, 'user_id');
     }
 
+    public function courseProgress()
+    {
+        return $this->hasMany(CourseProgress::class);
+    }
+
     // Accessor pour l'URL de la photo de profil
     public function getProfilePhotoUrlAttribute()
     {

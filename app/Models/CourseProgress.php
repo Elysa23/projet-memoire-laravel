@@ -10,7 +10,14 @@ class CourseProgress extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'course_id', 'course_page_id', 'started_at', 'status'
+        'user_id',
+        'course_id',
+        'last_page_number',
+        'completed_at'
+    ];
+
+    protected $casts = [
+        'completed_at' => 'datetime'
     ];
 
     public $timestamps = true;

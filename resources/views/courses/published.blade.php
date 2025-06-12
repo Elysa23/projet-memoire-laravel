@@ -28,6 +28,22 @@ document.addEventListener('DOMContentLoaded', function () {
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @forelse($courses as $course)
             <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 flex flex-col justify-between h-full">
+                @if(Auth::user() && Auth::user()->role === 'apprenant')
+                    @php
+                        $progress = $course->getProgress(Auth::user());
+                        $progressColor = $progress >= 100 ? 'bg-green-500' : 'bg-blue-500';
+                    @endphp
+                    <div class="mb-4">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-200">Progression</span>
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-200">{{ $progress }}%</span>
+                        </div>
+                        <div class="w-full h-2.5 bg-gray-200 rounded-full dark:bg-gray-700">
+                            <div class="h-2.5 rounded-full transition-all duration-500 ease-in-out {{ $progressColor }}"
+                                 style="width: {{ $progress }}%"></div>
+                        </div>
+                    </div>
+                @endif
                 @if($course->thumbnail)
                     <img src="{{ asset('storage/' . $course->thumbnail) }}" alt="Miniature du cours" class="w-full h-40 object-cover rounded-t mb-4">
                 @endif

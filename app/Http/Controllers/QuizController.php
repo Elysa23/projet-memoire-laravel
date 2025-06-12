@@ -65,7 +65,7 @@ class QuizController extends Controller
         return view('quizzes.show', compact('quiz', 'quizContentHtml'));
     }
 
-    // Génère un quiz via l’API IA (exemple avec Mistral)
+    // Génère un quiz via l'API IA (exemple avec Mistral)
     public function generate(Request $request)
 {
     $request->validate([
@@ -155,14 +155,44 @@ public function submitAnswers(Request $request, Quiz $quiz)
         'time_spent' => 'nullable|integer'
     ]);
 
-    QuizAnswer::create([
+    $finalScore = 0;
+    $totalQuestions = count($request->answers);
+
+    foreach ($request->answers as $questionId => $answer) {
+        $correctAnswer = $this->parseQuizMarkdown($quiz->content)[$questionId]['correct'];
+        if ($correctAnswer === $answer) {
+            $finalScore++;
+        }
+    }
+
+    // Sauvegarder la réponse
+    $answer = QuizAnswer::create([
+        'user_id' => auth()->id(),
         'quiz_id' => $quiz->id,
-        'user_id' => Auth::id(),
         'answers' => $request->answers,
+        'score' => $finalScore,
         'time_spent' => $request->time_spent,
     ]);
 
-    return redirect()->route('quizzes.index')->with('success', 'Quiz soumis avec succès !');
+    // Rediriger vers la page de résultats
+    return redirect()->route('quizzes.result', ['quiz' => $quiz, 'score' => $finalScore]);
+}
+
+public function showResult(Quiz $quiz)
+{
+    $userAnswer = $quiz->answers()
+        ->where('user_id', auth()->id())
+        ->latest()
+        ->first();
+
+    if (!$userAnswer) {
+        return redirect()->route('quizzes.index');
+    }
+
+    return view('quizzes.result', [
+        'quiz' => $quiz,
+        'score' => $userAnswer->score
+    ]);
 }
 
 public function parseQuizMarkdown($markdown)
