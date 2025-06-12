@@ -13,11 +13,11 @@
         <div class="hidden sm:flex sm:items-center ms-10 space-x-6">
         @if(Auth::user()->role === 'admin' || Auth::user()->role === 'formateur')
             <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
+                {{ __('Tableau de bord') }}
             </x-nav-link>
             @elseif(auth()->user()->role === 'apprenant')
                 <x-nav-link :href="route('student.quiz.stats')" :active="request()->routeIs('student.quiz.stats')">
-                    {{ __('Dashboard') }}
+                    {{ __('Tableau de bord') }}
                 </x-nav-link>
             @endif
 
@@ -30,7 +30,7 @@
 
                 @if(Auth::user()->role === 'admin' || Auth::user()->role === 'formateur')
                 <x-nav-link :href="route('courses.index')" :active="request()->is('courses*')">
-            {{ __('Cours') }}
+                    {{ __('Cours') }}
                 </x-nav-link>
                 @endif
 
@@ -68,7 +68,7 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            {{ __('Profil') }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -78,7 +78,7 @@
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                                {{ __('Se déconnecter') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -101,7 +101,7 @@
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
+                {{ __('Tableau de bord') }}
             </x-responsive-nav-link>
         </div>
 
@@ -114,7 +114,7 @@
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
+                    {{ __('Profil') }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->
@@ -124,7 +124,7 @@
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();">
-                        {{ __('Log Out') }}
+                        {{ __('Se déconnecter') }}
                     </x-responsive-nav-link>
                 </form>
             </div>
