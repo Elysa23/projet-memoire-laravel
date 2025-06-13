@@ -5,10 +5,10 @@
     <h1 class="text-2xl font-bold mb-6 dark:text-white">Liste des quiz</h1>
     @if(auth()->user()->role !== 'apprenant')
     <div class="flex justify-end mb-4 mr-4">
-        <button onclick="openQuizModal()" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded mb-4">
-            + Créer un quiz
-        </button>
-    </div>
+    <button onclick="openQuizModal()" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded mb-4">
+        + Créer un quiz
+    </button>
+</div>
     @endif
     <!--Affichage quizz dans l'onglet quizz-->
 
@@ -42,7 +42,7 @@
                 <div class="text-center mb-4">
                     <h3 class="text-lg font-bold text-blue-900 dark:text-white">
                         {{ $quiz->course->title ?? 'Cours inconnu' }} : {{ $quiz->title }}
-                    </h3>
+            </h3>
                 </div>
                 <div class="flex justify-center items-center text-sm text-gray-600 dark:text-gray-400">
                     <span>Créé par : {{ $quiz->user->name ?? 'Inconnu' }}</span>
@@ -54,8 +54,8 @@
                 <div class="flex justify-center mt-4">
                     @if($status === 'not_started')
                         <a href="{{ route('quizzes.answer', $quiz) }}" class="bg-blue-600 hover:bg-blue-800 text-white px-4 py-2 rounded-lg transition-colors duration-300">
-                            Passer le quiz
-                        </a>
+                        Passer le quiz
+                    </a>
                     @else
                         <a href="{{ route('quizzes.answer', $quiz) }}" class="bg-yellow-600 hover:bg-yellow-800 text-white px-4 py-2 rounded-lg transition-colors duration-300">
                             Repasser le quiz

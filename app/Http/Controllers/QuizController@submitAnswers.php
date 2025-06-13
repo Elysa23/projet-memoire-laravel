@@ -17,7 +17,7 @@ class QuizController extends Controller
     ]);
 
     // 2. Parsing des questions du quiz
-    $questions = parseQuizMarkdown($quiz->content); // ou ta méthode de parsing
+    $questions = parseQuizMarkdown($quiz->content); 
     $userAnswers = $request->input('answers');
     $score = 0;
     $total = 0;

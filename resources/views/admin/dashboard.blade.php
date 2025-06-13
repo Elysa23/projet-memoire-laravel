@@ -6,22 +6,22 @@
     <h1 class="text-2xl font-bold mb-6 dark:text-white">Statistiques cours</h1>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <!-- Carte Cours créés -->
-        <div @click="modal = 'created'" class="cursor-pointer bg-blue-100 dark:bg-blue-900 rounded-lg shadow p-6 text-center hover:bg-blue-200 transition">
+        <div @click="modal = 'created'" class="cursor-pointer bg-blue-100 dark:bg-blue-900 rounded-lg shadow p-6 text-center hover:bg-blue-200 hover:shadow-xl transition-all duration-300">
             <div class="text-3xl font-bold text-blue-700 dark:text-blue-300">{{ $total }}</div>
             <div class="text-lg text-blue-900 dark:text-blue-100 mt-2">Cours créés</div>
         </div>
         <!-- Carte Brouillons -->
-        <div @click="modal = 'draft'" class="cursor-pointer bg-yellow-100 dark:bg-yellow-900 rounded-lg shadow p-6 text-center hover:bg-yellow-200 transition">
+        <div @click="modal = 'draft'" class="cursor-pointer bg-yellow-100 dark:bg-yellow-900 rounded-lg shadow p-6 text-center hover:bg-yellow-200 hover:shadow-xl transition-all duration-300">
             <div class="text-3xl font-bold text-yellow-700 dark:text-yellow-300">{{ $draft }}</div>
             <div class="text-lg text-yellow-900 dark:text-yellow-100 mt-2">Brouillons</div>
         </div>
         <!-- Carte Archivés -->
-        <div @click="modal = 'archived'" class="cursor-pointer bg-gray-100 dark:bg-gray-800 rounded-lg shadow p-6 text-center hover:bg-gray-200 transition">
+        <div @click="modal = 'archived'" class="cursor-pointer bg-gray-100 dark:bg-gray-800 rounded-lg shadow p-6 text-center hover:bg-gray-200 hover:shadow-xl transition-all duration-300">
             <div class="text-3xl font-bold text-gray-700 dark:text-gray-300">{{ $archived }}</div>
             <div class="text-lg text-gray-900 dark:text-gray-100 mt-2">Cours archivés</div>
         </div>
         <!-- Carte Taux de déploiement -->
-        <div @click="modal = 'deployment'" class="cursor-pointer bg-green-100 dark:bg-green-900 rounded-lg shadow p-6 text-center hover:bg-green-200 transition">
+        <div @click="modal = 'deployment'" class="cursor-pointer bg-green-100 dark:bg-green-900 rounded-lg shadow p-6 text-center hover:bg-green-200 hover:shadow-xl transition-all duration-300">
             <div class="text-3xl font-bold text-green-700 dark:text-green-300">{{ $deploymentRate }}%</div>
             <div class="text-lg text-green-900 dark:text-green-100 mt-2">Taux de déploiement</div>
         </div>
@@ -92,15 +92,15 @@
 <div class="container mx-auto py-8" x-data="{ modal: null }">
     <h1 class="text-2xl font-bold mb-6 dark:text-white">Statistiques des quizz</h1>
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div @click="modal = 'globalAvg'" class="cursor-pointer bg-blue-100 dark:bg-blue-900 rounded-lg shadow p-6 text-center hover:bg-blue-200 transition">
+        <div @click="modal = 'globalAvg'" class="cursor-pointer bg-blue-100 dark:bg-blue-900 rounded-lg shadow p-6 text-center hover:bg-blue-200 hover:shadow-xl transition-all duration-300">
             <div class="text-3xl font-bold text-blue-700 dark:text-blue-300">{{ $globalAvg }}</div>
             <div class="text-lg text-blue-900 dark:text-blue-100 mt-2">Note moyenne globale</div>
         </div>
-        <div @click="modal = 'globalSuccess'" class="cursor-pointer bg-green-100 dark:bg-green-900 rounded-lg shadow p-6 text-center hover:bg-green-200 transition">
+        <div @click="modal = 'globalSuccess'" class="cursor-pointer bg-green-100 dark:bg-green-900 rounded-lg shadow p-6 text-center hover:bg-green-200 hover:shadow-xl transition-all duration-300">
             <div class="text-3xl font-bold text-green-700 dark:text-green-300">{{ $globalSuccess }}%</div>
             <div class="text-lg text-green-900 dark:text-green-100 mt-2">Taux de réussite global</div>
         </div>
-        <div @click="modal = 'avgByQuiz'" class="cursor-pointer bg-yellow-100 dark:bg-yellow-900 rounded-lg shadow p-6 text-center hover:bg-yellow-200 transition">
+        <div @click="modal = 'avgByQuiz'" class="cursor-pointer bg-yellow-100 dark:bg-yellow-900 rounded-lg shadow p-6 text-center hover:bg-yellow-200 hover:shadow-xl transition-all duration-300">
             <div class="text-3xl font-bold text-yellow-700 dark:text-yellow-300">Voir</div>
             <div class="text-lg text-yellow-900 dark:text-yellow-100 mt-2">Note moyenne par quizz</div>
         </div>

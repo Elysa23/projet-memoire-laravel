@@ -135,7 +135,7 @@ class QuizController extends Controller
 
     public function destroy(Quiz $quiz)
 {
-    // Optionnel : vérifier que l'utilisateur a le droit de supprimer
+    // Vérifier que l'utilisateur a le droit de supprimer
     $quiz->delete();
     return redirect()->route('quizzes.index')->with('success', 'Quiz supprimé avec succès !');
 }

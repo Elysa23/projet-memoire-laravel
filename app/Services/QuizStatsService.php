@@ -21,15 +21,23 @@ class QuizStatsService
         $trainers = User::where('role', 'formateur')->get();
         $result = [];
         foreach ($trainers as $trainer) {
+            // Vérifier si le formateur a des quiz avec des réponses
             $quizIds = Quiz::whereHas('course', function($q) use ($trainer) {
                 $q->where('user_id', $trainer->id);
-            })->pluck('id');
+            })
+            ->whereHas('answers') // Vérifie qu'il y a des réponses
+            ->pluck('id');
+
+            // Ne pas inclure les formateurs sans quiz ou sans réponses
             if ($quizIds->isEmpty()) continue;
+
             $avg = QuizAnswer::whereIn('quiz_id', $quizIds)->avg('score');
-            $result[] = [
-                'name' => $trainer->name,
-                'average' => $avg ? round($avg, 2) : null,
-            ];
+            if ($avg !== null) {
+                $result[] = [
+                    'name' => $trainer->name,
+                    'average' => round($avg, 2),
+                ];
+            }
         }
         return $result;
     }
