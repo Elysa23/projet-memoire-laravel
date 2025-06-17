@@ -13,11 +13,24 @@ use League\CommonMark\CommonMarkConverter;
 class QuizController extends Controller
 {
     // Affiche la liste des quiz
-    public function index()
+    public function index(Request $request)
     {
-        $quizzes = Quiz::with('course', 'user')->latest()->get();
-        $courses = \App\Models\Course::all(); 
-        return view('quizzes.index', compact('quizzes','courses'));
+        $query = Quiz::with('course', 'user');
+
+        // Recherche par titre
+        if ($request->has('search') && !empty($request->search)) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        // Filtre par cours
+        if ($request->has('course') && !empty($request->course)) {
+            $query->where('course_id', $request->course);
+        }
+
+        $quizzes = $query->latest()->get();
+        $courses = Course::all();
+        
+        return view('quizzes.index', compact('quizzes', 'courses'));
     }
 
     // Affiche le formulaire/modal de création de quiz
@@ -115,7 +128,6 @@ class QuizController extends Controller
 
     public function edit(Quiz $quiz)
 {
-    // Optionnel : vérifier que l'utilisateur a le droit de modifier
     return view('quizzes.edit', compact('quiz'));
 }
 

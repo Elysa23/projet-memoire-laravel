@@ -2,16 +2,44 @@
 
 @section('content')
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-2xl font-bold mb-6 dark:text-white">Liste des quiz</h1>
-    @if(auth()->user()->role !== 'apprenant')
-    <div class="flex justify-end mb-4 mr-4">
-    <button onclick="openQuizModal()" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded mb-4">
-        + Créer un quiz
-    </button>
-</div>
-    @endif
-    <!--Affichage quizz dans l'onglet quizz-->
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold dark:text-white">Liste des quiz</h1>
+        @if(auth()->user()->role !== 'apprenant')
+        <button onclick="openQuizModal()" class="bg-blue-600 hover:bg-blue-800 text-white font-bold py-2 px-6 rounded">
+            + Créer un quiz
+        </button>
+        @endif
+    </div>
 
+    <!-- Barre de recherche -->
+    <form id="search-form" method="GET" action="{{ route('quizzes.index') }}" class="mb-6">
+        <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex-1 min-w-[200px]">
+                <label for="search" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rechercher par titre</label>
+                <input type="text" name="search" id="search" value="{{ request('search') }}" 
+                    class="w-full border rounded-lg px-4 py-2 dark:bg-gray-700 dark:text-white" 
+                    placeholder="Titre du quiz...">
+            </div>
+            <div class="flex-1 min-w-[200px]">
+                <label for="course" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filtrer par cours</label>
+                <select name="course" id="course" class="w-full border rounded-lg px-4 py-2 dark:bg-gray-700 dark:text-white">
+                    <option value="">Tous les cours</option>
+                    @foreach($courses as $course)
+                        <option value="{{ $course->id }}" {{ request('course') == $course->id ? 'selected' : '' }}>
+                            {{ $course->title }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                    Rechercher
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!--Affichage quizz dans l'onglet quizz-->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     @forelse($quizzes as $quiz)
         <div class="bg-blue-50 dark:bg-gray-800 rounded-xl shadow-lg p-6 flex flex-col border border-blue-100 dark:border-gray-700 hover:shadow-xl transition-shadow duration-300">
@@ -124,6 +152,20 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search');
+    const searchForm = document.getElementById('search-form');
+    let lastValue = searchInput.value;
+
+    searchInput.addEventListener('input', function() {
+        if (lastValue !== '' && searchInput.value === '') {
+            // Si on vient de vider le champ, on soumet le formulaire
+            searchForm.submit();
+        }
+        lastValue = searchInput.value;
+    });
+});
+
 function openQuizModal() {
     document.getElementById('quiz-modal').style.display = 'flex';
     document.getElementById('quiz-result').classList.add('hidden');

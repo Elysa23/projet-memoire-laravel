@@ -248,25 +248,25 @@
                     <td class="border px-4 py-2">{{ $user->role }}</td>
                     @endif
                     <td class="border px-4 py-2 text-center">
-                        <button onclick="openEditUserModal({ 
-                            id: '{{ $user->id }}', 
-                            name: '{{ $user->name }}', 
-                            email: '{{ $user->email }}', 
-                            role: '{{ $user->role }}' 
-                        })"
-                        class="bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-600 mx-auto block">
-                            Modifier
-                        </button>
+                    <button onclick="openEditUserModal({ 
+    id: '{{ $user->id }}', 
+    name: '{{ $user->name }}', 
+    email: '{{ $user->email }}', 
+    role: '{{ $user->role }}' 
+})"
+class="bg-yellow-400 text-white px-3 py-1 rounded hover:bg-yellow-600 mx-auto block">
+    Modifier
+</button>
                     </td>
                     <td class="border px-4 py-2 text-center">
-                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="text-red-500 hover:underline"
-                                onclick="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?')">
-                                Supprimer
-                            </button>
-                        </form>
+                            <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-500 hover:underline"
+                                    onclick="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?')">
+                                    Supprimer
+                                </button>
+                            </form>
                     </td>
                 </tr>
             @endforeach
